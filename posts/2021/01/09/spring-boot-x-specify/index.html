@@ -30,8 +30,8 @@
 <meta property="og:description" content="特别说明：通常，我们会将SpringBoot写作SpringBoot，而此处写作spring-boot是因项目的确就叫做spring-boot-x。以下简称项目。
  项目地址：https://github.com/OpeningO/spring-boot-x
 源起 娱坛有云一人一首成名曲，虽互联网技术与娱之文艺不同，但个人仍以为技术与艺类同，皆为高雅之事。故成此项目，是以个人有利器，便于而后开疆扩土。
-总览 更新说明  重构整个包，发布4.0.0.RELEASE版本 [ 2021.6.30更新 ] 优化分布式id生成器，隔离默认的redis配置及Zookeeper配置，让id生成与业务完全分离 [ 2021.6.30更新 ] since v3.2.0.RELEASE  特性清单   手动事务管理 [2021.6.29更新]
-  分布式id生成器gedid，DidLoader [ 2021.6.25更新 ]" />
+总览 更新说明  支持分布式锁、幂等处理 [2021.8.16更新] since v5.1.0 重构整个包，发布4.0.0.RELEASE版本 [ 2021.6.30更新 ] 优化分布式id生成器，隔离默认的redis配置及Zookeeper配置，让id生成与业务完全分离 [ 2021.6.30更新 ] since v3.2.0.RELEASE  特性清单   手动事务管理 [2021.6.29更新]
+  分布式id生成器gedid，DidLoader [ 2021." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://izcqi.com/posts/2021/01/09/spring-boot-x-specify/" />
 <meta property="article:published_time" content="2021-01-09T09:34:31+08:00" />
@@ -42,8 +42,8 @@
 <meta name="twitter:description" content="特别说明：通常，我们会将SpringBoot写作SpringBoot，而此处写作spring-boot是因项目的确就叫做spring-boot-x。以下简称项目。
  项目地址：https://github.com/OpeningO/spring-boot-x
 源起 娱坛有云一人一首成名曲，虽互联网技术与娱之文艺不同，但个人仍以为技术与艺类同，皆为高雅之事。故成此项目，是以个人有利器，便于而后开疆扩土。
-总览 更新说明  重构整个包，发布4.0.0.RELEASE版本 [ 2021.6.30更新 ] 优化分布式id生成器，隔离默认的redis配置及Zookeeper配置，让id生成与业务完全分离 [ 2021.6.30更新 ] since v3.2.0.RELEASE  特性清单   手动事务管理 [2021.6.29更新]
-  分布式id生成器gedid，DidLoader [ 2021.6.25更新 ]"/>
+总览 更新说明  支持分布式锁、幂等处理 [2021.8.16更新] since v5.1.0 重构整个包，发布4.0.0.RELEASE版本 [ 2021.6.30更新 ] 优化分布式id生成器，隔离默认的redis配置及Zookeeper配置，让id生成与业务完全分离 [ 2021.6.30更新 ] since v3.2.0.RELEASE  特性清单   手动事务管理 [2021.6.29更新]
+  分布式id生成器gedid，DidLoader [ 2021."/>
 <meta name="generator" content="Hugo 0.68.3" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />  
   <link rel="stylesheet" href="https://izcqi.com/css/free.min.css?livereload=1574867372890" media="all">
@@ -180,7 +180,9 @@
     </li>
     <li><a href="#细说特性">细说特性</a>
       <ul>
-        <li><a href="#手动事务管理-2021625-since-312release">手动事务管理 [2021.6.25] since 3.1.2.RELEASE</a></li>
+        <li><a href="#分布式锁">分布式锁</a></li>
+        <li><a href="#幂等处理">幂等处理</a></li>
+        <li><a href="#手动事务管理更新-2021816-since-510">手动事务管理更新 [2021.8.16] since 5.1.0</a></li>
         <li><a href="#分布式id生成器--2021625更新--since-300releae">分布式Id生成器 [ 2021.6.25更新 ] since 3.0.0.RELEAE</a></li>
         <li><a href="#safety-工具--2021625更新--since-300releae">Safety 工具 [ 2021.6.25更新 ] since 3.0.0.RELEAE</a></li>
         <li><a href="#请求日志">请求日志</a></li>
@@ -206,6 +208,7 @@
 <p><img src="https://img.shields.io/maven-central/v/org.openingo.boot/spring-boot-x.svg" alt="maven"></p>
 <h3 id="更新说明">更新说明</h3>
 <ul>
+<li>支持分布式锁、幂等处理 [2021.8.16更新] <strong>since v5.1.0</strong></li>
 <li>重构整个包，发布4.0.0.RELEASE版本  [ 2021.6.30更新 ]</li>
 <li>优化分布式id生成器，隔离默认的redis配置及Zookeeper配置，让id生成与业务完全分离  [ 2021.6.30更新 ] <strong>since v3.2.0.RELEASE</strong></li>
 </ul>
@@ -218,7 +221,7 @@
 <p>分布式id生成器gedid，DidLoader [ 2021.6.25更新 ]</p>
 </li>
 <li>
-<p>Safety工具 [ 2021.6.25更新 ]</p>
+<p>Safety工具 [ 2021.6.25更新 ] [merge to jdkits since v5.1.0]</p>
 </li>
 <li>
 <p>请求日志，包括请求源、请求目标、请求参数、处理时间、错误异常等信息；</p>
@@ -263,9 +266,59 @@
 </code></pre></div></li>
 </ul>
 <h2 id="细说特性">细说特性</h2>
-<h3 id="手动事务管理-2021625-since-312release">手动事务管理 [2021.6.25] since 3.1.2.RELEASE</h3>
+<h3 id="分布式锁">分布式锁</h3>
+<blockquote>
+<p>基于redis实现</p>
+</blockquote>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">final</span> Lock a <span style="color:#ff79c6">=</span> DistributedLock<span style="color:#ff79c6">.</span><span style="color:#50fa7b">newLock</span><span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;a&#34;</span><span style="color:#ff79c6">);</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#ff79c6">try</span> <span style="color:#ff79c6">{</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>  <span style="color:#8be9fd;font-style:italic">final</span> <span style="color:#8be9fd">boolean</span> b <span style="color:#ff79c6">=</span> a<span style="color:#ff79c6">.</span><span style="color:#50fa7b">tryLock</span><span style="color:#ff79c6">();</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>  Assert<span style="color:#ff79c6">.</span><span style="color:#50fa7b">isTrue</span><span style="color:#ff79c6">(</span>b<span style="color:#ff79c6">,</span> <span style="color:#f1fa8c">&#34;get lock error&#34;</span><span style="color:#ff79c6">);</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>  <span style="color:#ff79c6">return</span> <span style="color:#f1fa8c">&#34;ok =&gt; &#34;</span> <span style="color:#ff79c6">+</span> b<span style="color:#ff79c6">;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#ff79c6">}</span> <span style="color:#ff79c6">finally</span> <span style="color:#ff79c6">{</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>  a<span style="color:#ff79c6">.</span><span style="color:#50fa7b">unlock</span><span style="color:#ff79c6">();</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#ff79c6">}</span>
+</code></pre></div><h3 id="幂等处理">幂等处理</h3>
+<p>提供了两个注解</p>
+<ul>
+<li>
+<p><code>org.openingo.spring.boot.extension.idempotent.annotation.Idempotent</code> 用于指定某方法是否需要幂等处理；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>@Documented
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>@Target<span style="color:#ff79c6">({</span>ElementType<span style="color:#ff79c6">.</span><span style="color:#50fa7b">METHOD</span><span style="color:#ff79c6">})</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>@Retention<span style="color:#ff79c6">(</span>RetentionPolicy<span style="color:#ff79c6">.</span><span style="color:#50fa7b">RUNTIME</span><span style="color:#ff79c6">)</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#8be9fd;font-style:italic">public</span> @interface Idempotent <span style="color:#ff79c6">{</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>  <span style="color:#6272a4">/**
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4">   * the key spring el
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4">   */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>  String <span style="color:#50fa7b">keyEl</span><span style="color:#ff79c6">()</span> <span style="color:#ff79c6">default</span> <span style="color:#f1fa8c">&#34;&#34;</span><span style="color:#ff79c6">;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>  <span style="color:#6272a4">/**
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#6272a4">   * expire minutes
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#6272a4">   */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>  <span style="color:#8be9fd">long</span> <span style="color:#50fa7b">expireMinutes</span><span style="color:#ff79c6">()</span> <span style="color:#ff79c6">default</span> 5L<span style="color:#ff79c6">;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#ff79c6">}</span>
+</code></pre></div></li>
+<li>
+<p><code>org.openingo.spring.boot.extension.idempotent.annotation.IdempotentKey</code> 用于从方法参数中指定幂等标识；</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>@Documented
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>@Target<span style="color:#ff79c6">({</span>ElementType<span style="color:#ff79c6">.</span><span style="color:#50fa7b">PARAMETER</span><span style="color:#ff79c6">,</span> ElementType<span style="color:#ff79c6">.</span><span style="color:#50fa7b">FIELD</span><span style="color:#ff79c6">})</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>@Retention<span style="color:#ff79c6">(</span>RetentionPolicy<span style="color:#ff79c6">.</span><span style="color:#50fa7b">RUNTIME</span><span style="color:#ff79c6">)</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#8be9fd;font-style:italic">public</span> @interface IdempotentKey <span style="color:#ff79c6">{</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#ff79c6">}</span>
+</code></pre></div></li>
+<li>
+<p>基于redis实现</p>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>@Idempotent<span style="color:#ff79c6">(</span>keyEl <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;#userEntity.id&#34;</span><span style="color:#ff79c6">,</span> expireMinutes <span style="color:#ff79c6">=</span> 1<span style="color:#ff79c6">)</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>@PostMapping<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;/idempotent&#34;</span><span style="color:#ff79c6">)</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#8be9fd;font-style:italic">public</span> String <span style="color:#50fa7b">hello</span><span style="color:#ff79c6">(</span>@RequestBody UserEntity userEntity<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>  <span style="color:#ff79c6">...</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#ff79c6">}</span>
+</code></pre></div><h3 id="手动事务管理更新-2021816-since-510">手动事务管理更新 [2021.8.16] since 5.1.0</h3>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>@Autowired
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#8be9fd;font-style:italic">private</span> ManualTransactionManager manualTransactionManager<span style="color:#ff79c6">;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#8be9fd;font-style:italic">private</span> TransactionTemplateX transactionTemplateX<span style="color:#ff79c6">;</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#8be9fd;font-style:italic">private</span> UserEntity <span style="color:#50fa7b">saveUser</span><span style="color:#ff79c6">(</span>UserEntity user<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>  <span style="color:#ff79c6">return</span> userRepo<span style="color:#ff79c6">.</span><span style="color:#50fa7b">save</span><span style="color:#ff79c6">(</span>user<span style="color:#ff79c6">);</span>
@@ -277,11 +330,11 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#ff79c6">}</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd">void</span> <span style="color:#50fa7b">saveEx</span><span style="color:#ff79c6">(</span>UserEntity user<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>  manualTransactionManager<span style="color:#ff79c6">.</span><span style="color:#50fa7b">txRun</span><span style="color:#ff79c6">(()</span> <span style="color:#ff79c6">-&gt;</span> <span style="color:#ff79c6">this</span><span style="color:#ff79c6">.</span><span style="color:#50fa7b">saveWithEx</span><span style="color:#ff79c6">(</span>user<span style="color:#ff79c6">));</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>  transactionTemplateX<span style="color:#ff79c6">.</span><span style="color:#50fa7b">txRun</span><span style="color:#ff79c6">(()</span> <span style="color:#ff79c6">-&gt;</span> <span style="color:#ff79c6">this</span><span style="color:#ff79c6">.</span><span style="color:#50fa7b">saveWithEx</span><span style="color:#ff79c6">(</span>user<span style="color:#ff79c6">));</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#ff79c6">}</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd">void</span> <span style="color:#50fa7b">saveExe</span><span style="color:#ff79c6">(</span>UserEntity user<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>  UserEntity ret <span style="color:#ff79c6">=</span> manualTransactionManager<span style="color:#ff79c6">.</span><span style="color:#50fa7b">txCall</span><span style="color:#ff79c6">(()</span> <span style="color:#ff79c6">-&gt;</span>  <span style="color:#ff79c6">{</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>  UserEntity ret <span style="color:#ff79c6">=</span> transactionTemplateX<span style="color:#ff79c6">.</span><span style="color:#50fa7b">txCall</span><span style="color:#ff79c6">(()</span> <span style="color:#ff79c6">-&gt;</span>  <span style="color:#ff79c6">{</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">this</span><span style="color:#ff79c6">.</span><span style="color:#50fa7b">saveUser</span><span style="color:#ff79c6">(</span>user<span style="color:#ff79c6">);</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>  <span style="color:#ff79c6">});</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>  ret <span style="color:#ff79c6">...</span>
@@ -289,6 +342,9 @@
 </code></pre></div><h3 id="分布式id生成器--2021625更新--since-300releae">分布式Id生成器 [ 2021.6.25更新 ] since 3.0.0.RELEAE</h3>
 <p>从这里看<a href="https://izcqi.com/posts/2021/07/01/gedid/">分布式id使用说明</a></p>
 <h3 id="safety-工具--2021625更新--since-300releae">Safety 工具 [ 2021.6.25更新 ] since 3.0.0.RELEAE</h3>
+<blockquote>
+<p>已合并到jdkits，since v5.1.0</p>
+</blockquote>
 <blockquote>
 <p>封装了<code>ReentrantLock</code>，具体查看源码<code>org.openingo.spring.safety.Safety</code></p>
 </blockquote>
